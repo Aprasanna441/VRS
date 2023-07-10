@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %} Vehicle Information {% endblock %}
+
+
+
+{% block content %}
+<style>
+ body{
+        
+        background-size: cover;
+        background-repeat: no-repeat;
+        width:100%;
+        height: 100vh;
+        
+    }
+</style>
+<body>
+ <h1 style="text-align: center;">Your Vehicles</h1>
+ <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Brand</th>
+        <th scope="col">Number</th>
+        <th scope="col">Registered At</th>
+        <th scope="col">Last Renewed</th>
+        <th scope="col">Expiry Date</th>
+        <th scope="col">Time till Expiry</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if data.count >= 1 %}
+        {% for d in data %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{d.vehicle}}</td>
+        <td>{{d.vehicle}}</td>
+        <td>{{d.vehicle}}</td>
+        <td>{{d.vehicle}}</td>
+        <td>{{d.vehicle}}</td>
+        <td>{{d.vehicle}}</td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <th scope="row">1</th>
+        <td>{{data.vehicle}}</td>
+        <td>{{data.number}}</td>
+        <td>{{data.registered_at}}</td>
+        <td>{{data.renewed_date}}</td>
+        <td>{{data.expiry_date}}</td>
+        <td>{{data.expiry_date}}</td>
+      </tr>
+      {% endif %}
+
+      
+    </tbody>
+  </table>
+
+
+ <a  class="btn btn-primary" href="{% url 'myapp:vehicleregistration' %}">Add Vehicle</a>
+
+</body>
+
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %} Profile {% endblock %}
+
+
+
+{% block content %}
+
+</style>
+<body>
+
+ <h1 style="text-align: center;">Your profile</h1>
+      <div class="card text-center " style="width: 18rem; left:30%">
+        {% if citizen.photo %}
+            <img class="card-img-top border border-primary" src="{{citizen.photo.url}}" alt="Card image cap">
+            {% else %}
+            
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{citizen.full_name}}</h5>
+              <p class="card-text">Joined on  {{citizen.joined_on}} </p>
+              <p> {{citizen.local_body}}-{{citizen.ward_no}},{{citizen.district}}</p>
+              <a href="{% url 'myapp:addcitizen' citizen.id %}" class="btn btn-primary">Fill Info</a>
+            </div>
+          </div>
+</body>
+
+{% endblock %}

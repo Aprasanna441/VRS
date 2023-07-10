@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} Home {% endblock %}
+
+
+
+{% block content %}
+<style>
+ 
+</style>
+<body>
+    <div id="carouselExampleSlidesOnly"  class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            {% for i in slides %}
+          <div class="carousel-item {% if forloop.first %} active {% endif %} " >
+            
+            <img src="{{i}}" style="height: 500px;" class="d-block w-100" alt="image">
+          </div>
+          {% endfor %}
+        
+        </div>
+      </div>
+</body>
+<script>
+$('.carousel').carousel({
+  interval: 2000
+})
+</script>
+
+{% endblock %}

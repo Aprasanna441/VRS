@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+    <h1 style="text-align: center;">Fill all information properly</h1>
+    {% if messages %}
+    {% for message in messages %}
+  <h1 style="color:red">{{message}}</h1>
+  {% endfor %}
+    {% endif %}
+    <form method="post" id="updateForm" style="text-align: center;" enctype="multipart/form-data" data-municipalities-url="{% url 'myapp:ajax_load_muni' %}" >
+              
+        {% csrf_token %}
+        {{ form.as_p}}
+        <hr>
+        <input class="btn btn-outline-danger" type="submit" value="Update Info">
+        
+      </form>
+      
+    
+</body>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $("#id_district").change(function () {
+      
+      var url = $("#updateForm").attr("data-municipalities-url");  // get the url of the `load_cities` view
+      var districtId = $(this).val(); 
+       // get the selected district ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'district': districtId       // add the district id to the GET parameters
+        },
+
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_local_body").html(data);  // replace the contents of the city input with the data that came from the server
+        }
+       
+      });
+     
+
+    });
+</script>
+{% endblock %}
