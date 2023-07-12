@@ -23,7 +23,8 @@
     <div class="containter pt-4 text-center ">
         <div class="col-lg-5 shadow  mx-auto p-0 bg-light">
           <div class="alert alert-success">
-            <h2>Create Account</h2><div class="form-check form-switch">
+            <h2>Create Account</h2>
+            <div class="form-check form-switch">
               <input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off" >
               <label class="btn btn-outline-danger" for="success-outlined" id="radioo"><a href="{% url 'myapp:login' %}">Login</a></label>
               
@@ -31,6 +32,9 @@
               <label class="btn btn-outline-danger" id="radioo" for="danger-outlined"><a href="{% url 'myapp:signup' %}">Signup</a></label>
             </div>
           </div>
+          {% for message in messages %}
+          <h1>{{message}}</h1>
+          {% endfor %}
           <div class="p-4">
             {% if purpose == "Signup" %}
             <form method="post"  >

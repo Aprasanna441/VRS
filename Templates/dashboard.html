@@ -20,6 +20,8 @@
               <p class="card-text">Joined on  {{citizen.joined_on}} </p>
               <p> {{citizen.local_body}}-{{citizen.ward_no}},{{citizen.district}}</p>
               <a href="{% url 'myapp:addcitizen' citizen.id %}" class="btn btn-primary">Fill Info</a>
+              <a href="{% url 'myapp:changepw' %}">Change Password</a>
+
             </div>
           </div>
 </body>

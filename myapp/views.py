@@ -6,7 +6,8 @@ from django.http import HttpResponse
 from django.contrib.auth import login,logout,authenticate
 from django.views.generic import CreateView,FormView,TemplateView,UpdateView,View
 from .models import CustomUser,Citizen,Municipality,District,RegisteredVehicle,Transactions
-from .forms import CitizenRegistrationForm,CitizenLoginForm,ForgetPasswordForm,ChangePasswordForm,ResetPasswordForm
+from .forms import CitizenRegistrationForm,CitizenLoginForm,ForgetPasswordForm,ResetPasswordForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 import os
 from django.utils import timezone
 
@@ -35,7 +36,7 @@ class HomeView(TemplateView):
 class UserSignupView(FormView):
     form_class=CitizenRegistrationForm
     template_name='signup.html'   
-    success_url=reverse_lazy('myapp:login')
+    success_url=reverse_lazy('myapp:home')
 
 
 
@@ -93,7 +94,7 @@ class LoginView(FormView):
     
 
 
-class ProfileView(TemplateView):
+class ProfileView(LoginRequiredMixin,TemplateView):
     template_name ="dashboard.html"
 
     def get_context_data(self, **kwargs):
@@ -167,16 +168,16 @@ class ResetPasswordView(FormView):
 
 
         return super().form_valid(form)
-    
-class ChangePasswordView(FormView):
-    template_name="passwordchange.html"
-    form_class=ChangePasswordForm
-    success_url="/login"
-
-    def get_context_data(self, **kwargs):
-        context= super().get_context_data(**kwargs)
-
-        return context
+from django.contrib.auth.forms import PasswordChangeForm  
+def password_change_view(request):
+    if request.method == 'POST':
+        pass_form = PasswordChangeForm(user=request.user, data=request.POST)
+        if pass_form.is_valid():
+            pass_form.save()
+            return redirect('myapp:login')
+    else:
+        pass_form = PasswordChangeForm(user=request.user)
+    return render(request, 'passwordchange.html', {'form': pass_form})
 
 def signout(request):
     logout(request)
@@ -216,7 +217,7 @@ def load_muni(request):
     municipality = Municipality.objects.filter(district_id=district_id).order_by('name')
     return render(request, 'municipality_dropdown.html', {'municipalities': municipality})
 
-class VehicleRegistrationView(CreateView):
+class VehicleRegistrationView(LoginRequiredMixin,CreateView):
     model=RegisteredVehicle
     template_name="vehicle_registration.html"
     fields=["vehicle" ,"bluebook","registration_certificate"]
@@ -242,7 +243,7 @@ class CustomVehicleMixin:
 
 
 
-class SeeVehicles(TemplateView):
+class SeeVehicles(LoginRequiredMixin,TemplateView):
     template_name="vehicleinfo.html"
 
 
@@ -254,7 +255,7 @@ class SeeVehicles(TemplateView):
        
         # res=RegisteredVehicle.objects.filter(owner__user = self.request.user)
         res=RegisteredVehicle.objects.filter(owner=c)
-        print(res)
+     
         
         context["data"]=res
         

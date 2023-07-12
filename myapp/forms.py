@@ -35,11 +35,15 @@ class ForgetPasswordForm(forms.Form):
             raise forms.ValidationError("Email entered for non registered customer")
         return email
     
-class ChangePasswordForm(forms.Form):
-    email=forms.CharField(widget=forms.EmailInput)
-    old_password=forms.CharField(widget=forms.PasswordInput)
-    new_password=forms.CharField(widget=forms.PasswordInput)
-    confirm_new_password=forms.CharField(widget=forms.PasswordInput)
+
+# from django.contrib.auth.forms import PasswordChangeForm
+# class ChangePasswordForm(PasswordChangeForm):
+#     new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+#     new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ('old_password', 'new_password1', 'new_password2')
 
 class ResetPasswordForm(forms.Form):
     new_password=forms.CharField(widget=forms.PasswordInput)
