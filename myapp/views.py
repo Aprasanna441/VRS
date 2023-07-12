@@ -2,9 +2,10 @@ from base64 import urlsafe_b64encode
 from typing import Any, Dict
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
+from django.http import HttpResponse
 from django.contrib.auth import login,logout,authenticate
-from django.views.generic import CreateView,FormView,TemplateView,UpdateView
-from .models import CustomUser,Citizen,Municipality,District,RegisteredVehicle
+from django.views.generic import CreateView,FormView,TemplateView,UpdateView,View
+from .models import CustomUser,Citizen,Municipality,District,RegisteredVehicle,Transactions
 from .forms import CitizenRegistrationForm,CitizenLoginForm,ForgetPasswordForm,ChangePasswordForm,ResetPasswordForm
 import os
 from django.utils import timezone
@@ -196,6 +197,8 @@ def contact(request):
     return render(request,"contact.html")
 
 
+
+
 class AddCitizen(UpdateView):
     model=Citizen
     fields=["full_name","nin_no","district","local_body","ward_no","phone","identification","photo"]
@@ -217,18 +220,97 @@ class VehicleRegistrationView(CreateView):
     model=RegisteredVehicle
     template_name="vehicle_registration.html"
     fields=["vehicle" ,"bluebook","registration_certificate"]
-    success_url='myapp:home'
+    success_url=reverse_lazy('myapp:home')
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user 
+        form.instance.owner = self.request.user.citizen
         return super().form_valid(form)
+
+
+#decorator to check response but is not used as i got other easier logic
+class CustomVehicleMixin:
+    def dispatch(self, request, *args, **kwargs):
+        #  res=RegisteredVehicle.objects.get(owner__user = self.request.user)
+         cu=request.user
+         res=RegisteredVehicle.objects.filter(owner__user=request.user)
+         print(res)
+        #  if  res.first():
+        #      return super().dispatch(request,*args,**kwargs)
+        #  else:
+        #      return HttpResponse("No reg")
+         return HttpResponse("Hi")
+
+
 
 class SeeVehicles(TemplateView):
     template_name="vehicleinfo.html"
 
+
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
-        context['data']=RegisteredVehicle.objects.get(owner=self.request.user)
-        print(context)
+        u=self.request.user.id
+        c=Citizen.objects.get(user = u)
+        
+       
+        # res=RegisteredVehicle.objects.filter(owner__user = self.request.user)
+        res=RegisteredVehicle.objects.filter(owner=c)
+        print(res)
+        
+        context["data"]=res
+        
+       
+      
+       
         return context
+
+
+def fintecherror(request):
+    return  HttpResponse("Payment error aayo Feri prayas garnuhola")   
+
+class EsewaRequestView(View):
+    def get(self,request,*args,**kwargs):
+        vid=self.kwargs.get('vid')
+        vehicle=RegisteredVehicle.objects.get(id=vid)
+
+        
+        context={
+            "order":vehicle
+        }
+
+        return render(request,"esewapayment.html",context)
+import xml.etree.ElementTree as ET
+import requests
+class EsewaVerifyView(View):
+    def get(self,request,*args,**kwargs):
+        oid=request.GET.get("oid")
+        amt=request.GET.get("amt")
+        ref_id=request.GET.get("refId")
+        url ="https://uat.esewa.com.np/epay/transrec"
+        d = {
+        'amt': amt,
+        'scd': 'EPAYTEST',
+        'rid': ref_id,
+        'pid':oid,
+        }
+        resp = requests.post(url, d)
+        inside=ET.fromstring(resp.content)
+        status=inside[0].text.strip()  #removes white space from the status code 
+        order_id=oid.split("_")[1]   #order_12 ko form ma hunxa ani  12 matra nikalne ho esbata
+        order_obj=RegisteredVehicle.objects.get(id=order_id)
+        print("yaha sam")
+        if status=="Success":
+            order_obj.renewed_date=timezone.now()
+            order_obj.save()
+            temp=RegisteredVehicle.objects.get(id=order_id)
+            tr=Transactions(vehicle=temp,amount=float(amt))
+            tr.save()
+            print("Tr sav")
+
+
+            return redirect("myapp:home")
+        else:
+            
+            return redirect("/esewapayment/order_id/")
     
+
+

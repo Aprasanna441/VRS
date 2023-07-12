@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} payment and checkout {% endblock %}
+
+
+
+{% block content %}
+<style>
+    
+</style>
+<body>
+    Proceed to pay Rs {{order.total}}
+    <div class="container">
+        
+        
+            <form action="https://uat.esewa.com.np/epay/main" method="POST">
+            <input value="{{order.total}}" name="tAmt" type="hidden">
+            <input value="{{order.total}}" name="amt" type="hidden">
+            <input value="0" name="txAmt" type="hidden">
+            <input value="0" name="psc" type="hidden">
+            <input value="0" name="pdc" type="hidden">
+            <input value="EPAYTEST" name="scd" type="hidden">
+            <input value="order_{{order.id}}" name="pid" type="hidden">
+            <input value="http://127.0.0.1:8000/epay-verify" type="hidden" name="su">
+            <input value="http://127.0.0.1:8000/fintecherror" type="hidden" name="fu">
+            <input value="Submit" type="submit">
+            </form>
+        
+    </div>
+</body>
+{% endblock %}

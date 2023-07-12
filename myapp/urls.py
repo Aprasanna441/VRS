@@ -2,7 +2,7 @@
 from django.urls import path
 from . import views
 from myapp.views import UserSignupView,LoginView,HomeView,ProfileView
-from  myapp.views import ForgetPasswordView,ChangePasswordView,AddCitizen,VehicleRegistrationView,SeeVehicles
+from  myapp.views import ForgetPasswordView,ChangePasswordView,AddCitizen,VehicleRegistrationView,SeeVehicles,EsewaRequestView,EsewaVerifyView
 
 
 app_name="myapp"
@@ -23,6 +23,11 @@ path('addcitizen/<int:pk>/',AddCitizen.as_view(),name="addcitizen"),
 path('ajax/load-muni/', views.load_muni, name='ajax_load_muni'),
 path('vehicle-registration/',VehicleRegistrationView.as_view(),name="vehicleregistration"),
 path('vehicle-info/',SeeVehicles.as_view(),name="seevehicle"),
+path('esewapayment/<int:vid>/',EsewaRequestView.as_view(),name="esewapayment"),
+path('epay-verify',EsewaVerifyView.as_view(),name="epayverify"),
+path('fintecherror',views.fintecherror,name="fintecherror"),
+
+
 
 
 

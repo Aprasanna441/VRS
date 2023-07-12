@@ -6,6 +6,11 @@ from django.utils.translation import gettext_lazy as _
 from .managers import CustomUserManager 
 from django.core.validators import FileExtensionValidator
 from datetime import datetime, timedelta
+import datetime
+import pytz
+from django.utils import timezone
+utc=pytz.UTC
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class District(models.Model):
@@ -98,24 +103,39 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
 
+
+VEHICLE_TYPE=(
+    ('Two Wheeler','Two Wheeler'),
+    ('Four Wheeler','Four Wheeler'),
+    
+)
+
+
     
 class Vehicle(models.Model):
    
     brand=models.ForeignKey(Brand,on_delete=models.CASCADE)
     manufactured_date=models.DateField()
     identity_number=models.CharField(max_length=200)
+    engine_capacity=models.IntegerField(MinValueValidator(1))
+    vehicle_type=models.CharField(choices=VEHICLE_TYPE,default=None,max_length=30)
+
 
     def __str__(self):
         return str(self.identity_number)
     
+
+    
 class  RegisteredVehicle(models.Model):
     number = models.CharField(max_length=20)
-    owner=models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    owner=models.ForeignKey(Citizen,on_delete=models.CASCADE)
     vehicle=models.ForeignKey(Vehicle,on_delete=models.CASCADE)
     registered_at=models.DateField(auto_now_add=True)
     bluebook=models.FileField(upload_to='bluebook_pics')
     registration_certificate=models.ImageField( upload_to='registration_certificates')
-    renewed_date=models.DateTimeField()
+    renewed_date=models.DateTimeField(blank=True,null=True)
+    is_approved=models.BooleanField(default=False)
+    
     
     
     @property
@@ -125,21 +145,40 @@ class  RegisteredVehicle(models.Model):
     
     @property
     def number(self):
-        return  self.owner.citizen
+        return  self.owner
     
     @property
     def expired(self):
-        if datetime.today() > self.expiry_date:
-            return True
+        if timezone.now().replace(tzinfo=utc) > self.expiry_date.replace(tzinfo=utc):
+            return "Yes"
         else:
-            return False
+            return "No"
+        
+    @property
+    def timeremaining(self):
+        return self.expiry_date.replace(tzinfo=utc)-timezone.now()
+    
+    
+    @property
+    def total(self):
+        if self.vehicle.engine_capacity<1000:
+            return 1000
+        else:
+            return 1500
+    
+    def __str__(self):
+        return self.number
     
     
 
-    
-    
-    
+class Transactions(models.Model):
+    vehicle=models.ForeignKey(RegisteredVehicle,on_delete=models.CASCADE)
+    time=models.DateTimeField(auto_now_add=True)
+    amount=models.BigIntegerField()
 
+
+    def __str__(self):
+        return self.time
     
 
 
